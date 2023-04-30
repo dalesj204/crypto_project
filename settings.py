@@ -1,0 +1,3 @@
+from Crypto.Random import get_random_bytes
+
+KEY = b'Bv\xaf\x9c\xab\xafkc\xce\x12\xcf\xbfF\xf1\xca\xef'

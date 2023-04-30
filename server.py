@@ -1,9 +1,16 @@
+import settings
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+
 import socket
 import threading
 
 HOST = '127.0.0.1'
-PORT = 1234
-    
+PORT = 12000
+
+KEY = settings.KEY
+cipherE = AES.new(KEY, AES.MODE_EAX)
+nonceE = cipherE.nonce
     
 if __name__ == '__main__':
     # creating the server socket class object
@@ -32,6 +39,9 @@ if __name__ == '__main__':
     print(f"{client_name} has joined the chat")
     print("Send [e] to exit the chat")
     client.send(server_name.encode())
+    client.send(nonceE)
+    nonceD = client.recv(1024)
+    cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonceD)
         
     while 1:
         message = input(f"{server_name}: ")
@@ -40,7 +50,9 @@ if __name__ == '__main__':
             message = "Left the chat."
             client.send(message.encode())
             break
-        client.send(message.encode())
-        message = client.recv(1024).decode()
-        print(f"{client_name}: {message}")
-    
+        message = cipherE.encrypt(message.encode())
+        client.send(message)
+
+        message = client.recv(1024)
+        message = cipherD.decrypt(message)
+        print(f"{client_name}: {message.decode()}")
