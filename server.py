@@ -39,8 +39,8 @@ if __name__ == '__main__':
     print(f"{client_name} has joined the chat")
     print("Send [e] to exit the chat")
     client.send(server_name.encode())
-    client.send(nonceE)
     nonceD = client.recv(1024)
+    client.send(nonceE)
     cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonceD)
         
     while 1:
@@ -48,7 +48,8 @@ if __name__ == '__main__':
         if message == "[e]":
             print("You have left the chat.")
             message = "Left the chat."
-            client.send(message.encode())
+            message = cipherE.encrypt(message.encode())
+            client.send(message)
             break
         message = cipherE.encrypt(message.encode())
         client.send(message)
