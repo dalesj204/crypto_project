@@ -8,6 +8,10 @@ import threading
 HOST = '127.0.0.1'
 PORT = 12000
    
+#RSA keys
+n, e, p, q, d = settings.generateKeys()
+
+#AES keys
 KEY = settings.KEY
 cipherE = AES.new(KEY, AES.MODE_EAX)
 nonceE = cipherE.nonce
@@ -24,9 +28,17 @@ if __name__ == '__main__':
         print(f"Unable to connect to server {HOST} {PORT}")
 
     client_name = input("Enter your name: ")
+    #send and recieve names
     client.send(client_name.encode())
     server_name = client.recv(1024).decode()
+    #send and receieve public keys
+    client.send(str(n).encode())
+    nE = int(client.recv(1024).decode())
+    client.send(str(e).encode())
+    eE = int(client.recv(1024).decode())
+    #send personal AES key
     client.send(nonceE)
+    #recieve AES key for decryption
     nonceD = client.recv(1024)
     cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonceD)
     print(f"{server_name} has joined the chat")

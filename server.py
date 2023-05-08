@@ -8,6 +8,10 @@ import threading
 HOST = '127.0.0.1'
 PORT = 12000
 
+#RSA keys
+n, e, p, q, d = settings.generateKeys()
+
+#AES keys
 KEY = settings.KEY
 cipherE = AES.new(KEY, AES.MODE_EAX)
 nonceE = cipherE.nonce
@@ -38,8 +42,16 @@ if __name__ == '__main__':
     client_name = client.recv(1024).decode()
     print(f"{client_name} has joined the chat")
     print("Send [e] to exit the chat")
+    #send name
     client.send(server_name.encode())
+    #recieve and send public keys
+    nE = int(client.recv(1024).decode())
+    client.send(str(n).encode())
+    eE = int(client.recv(1024).decode())
+    client.send(str(e).encode())
+    #recieve AES key
     nonceD = client.recv(1024)
+    #send personal AES key
     client.send(nonceE)
     cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonceD)
         
