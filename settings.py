@@ -5,12 +5,12 @@ import math
 KEY = b'Bv\xaf\x9c\xab\xafkc\xce\x12\xcf\xbfF\xf1\xca\xef'
 
 def generateKeys():
-    p = random.getrandbits(64)
-    while is_prime(p):
-        p = random.getrandbits(64)
-    q = random.getrandbits(64)
-    while is_prime(q) :
-        q = random.getrandbits(64)
+    p = random.getrandbits(16)
+    while is_prime(p) == False:
+        p = random.getrandbits(16)
+    q = random.getrandbits(16)
+    while is_prime(q) == False:
+        q = random.getrandbits(16)
     #q will always be largest number
     if p > q:
         x = p
@@ -20,7 +20,8 @@ def generateKeys():
     theta = (p-1)*(q-1)
     e = gcd(theta, n)
     d = pow(e, -1, theta)
-    return n, e, p, q, d
+    h, d = pulverizor(theta, e)
+    return n, e, p, q, d%theta
 
 def rsaEncrypt(m, n, e):
     msg = to_IntArray(m)
@@ -32,13 +33,12 @@ def rsaEncrypt(m, n, e):
 def rsaDecrypt(y, n, p, q, d):
     cipher = y.split(" ")
     decr = ""
-    for c in cipher:
-        print(c)
+    for i in range(len(cipher[:-1])):
+        c = cipher[i]
         A = pow(int(c), d%(p-1), p)
         B = pow(int(c), d%(q-1), q)
         qPrime, pPrime = pulverizor(q, p)
         m = (A*q*qPrime + B*p*pPrime)%n
-        print(m)
         decr += str(chr(m))
     return decr
 
@@ -59,11 +59,10 @@ def is_prime(num):
             # If num is divisible by any number between
             # 2 and n / 2, it is not prime
             if (num % i) == 0:
-                return True
-            else:
                 return False
     else:
-        return True
+        return False
+    return True
 
 def pulverizor(q, p):
     A = q
@@ -91,10 +90,8 @@ def pulverizor(q, p):
         Y1 = y1
         X2 = x2
         Y2 = y2
-    return X2%p, Y2%q
+    return X2, Y2
 
 def to_IntArray(msg):
-    array = []
-    for m in msg:
-        array.extend(chr(m))
-    return array
+    array = [*str(msg)]
+    return [*str(msg)]
