@@ -23,14 +23,24 @@ def generateKeys():
     return n, e, p, q, d
 
 def rsaEncrypt(m, n, e):
-    return pow(m, e, n)
-
+    msg = to_IntArray(m)
+    cipher = ""
+    for ms in msg:
+        cipher += str(pow(ord(ms), e, n)) + " "
+    return cipher
+    
 def rsaDecrypt(y, n, p, q, d):
-    A = pow(y, d%(p-1), p)
-    B = pow(y, d%(q-1), q)
-    qPrime, pPrime = pulverizor(q, p)
-    m = (A*q*qPrime + B*p*pPrime)%n
-    return m
+    cipher = y.split(" ")
+    decr = ""
+    for c in cipher:
+        print(c)
+        A = pow(int(c), d%(p-1), p)
+        B = pow(int(c), d%(q-1), q)
+        qPrime, pPrime = pulverizor(q, p)
+        m = (A*q*qPrime + B*p*pPrime)%n
+        print(m)
+        decr += str(chr(m))
+    return decr
 
 def gcd(e, n):
     for i in range(3, n):
@@ -82,3 +92,9 @@ def pulverizor(q, p):
         X2 = x2
         Y2 = y2
     return X2%p, Y2%q
+
+def to_IntArray(msg):
+    array = []
+    for m in msg:
+        array.extend(chr(m))
+    return array
