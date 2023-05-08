@@ -36,10 +36,10 @@ if __name__ == '__main__':
     nE = int(client.recv(1024).decode())
     client.send(str(e).encode())
     eE = int(client.recv(1024).decode())
-    #send personal AES key
-    client.send(nonceE)
-    #recieve AES key for decryption
-    nonceD = client.recv(1024)
+    #send personal AES key, decode to convert from bits to int
+    client.send(settings.rsaEncrypt(nonceE.decode(), nE, eE))
+    #recieve AES key for decryption, encode to convert from int to bits
+    nonceD = settings.rsaDecrypt(client.recv(1024), n, p, q, d).encode()
     cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonceD)
     print(f"{server_name} has joined the chat")
     print("Send [e] to exit the chat")

@@ -49,10 +49,10 @@ if __name__ == '__main__':
     client.send(str(n).encode())
     eE = int(client.recv(1024).decode())
     client.send(str(e).encode())
-    #recieve AES key
-    nonceD = client.recv(1024)
-    #send personal AES key
-    client.send(nonceE)
+    #recieve AES key, encode to convert from int to bit
+    nonceD = settings.rsaDecrypt(client.recv(1024), n, p, q, d).encode()
+    #send personal AES key, decode to convert from bits to int
+    client.send(settings.rsaEncrypt(nonceE.decode(), nE, eE))
     cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonceD)
         
     while 1:
