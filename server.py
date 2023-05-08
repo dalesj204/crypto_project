@@ -6,7 +6,7 @@ import socket
 import threading
 
 HOST = '127.0.0.1'
-PORT = 12000
+PORT = 1200
 
 
 #RSA keys
@@ -15,7 +15,8 @@ n, e, p, q, d = settings.generateKeys()
 #AES keys
 KEY = settings.KEY
 cipherE = AES.new(KEY, AES.MODE_EAX)
-nonceE = cipherE.nonce
+cipherE.nonce = b'JGLguyg65^YTGUJg57fii7gSFG'
+nonceE = cipherE.nonce.decode()
     
 if __name__ == '__main__':
     # creating the server socket class object
@@ -51,11 +52,8 @@ if __name__ == '__main__':
     eE = int(client.recv(1024).decode())
     client.send(str(e).encode())
     #recieve AES key, encode to convert from int to byte
-    nonceD = settings.rsaDecrypt(client.recv(1024).decode(), n, p, q, d)
-    print(nonceD)
-    print(nonceD.encode())
+    nonceD = settings.rsaDecrypt(client.recv(1024).decode(), n, p, q, d).encode()
     #send personal AES key, decode to convert from byte to int
-    #client.send(settings.rsaEncrypt(nonceE.decode(), nE, eE))
     client.send(str(settings.rsaEncrypt(nonceE, nE, eE)).encode())
     cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonceD)
         
@@ -67,6 +65,7 @@ if __name__ == '__main__':
             message = cipherE.encrypt(message.encode())
             client.send(message)
             break
+        print(message.encode())
         message = cipherE.encrypt(message.encode())
         client.send(message)
 
