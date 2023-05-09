@@ -6,15 +6,13 @@ import socket
 import threading
 
 HOST = '127.0.0.1'
-PORT = 1200
+PORT = 12000
    
 
 #AES keys
-nonce = "AOUH25oib4su654ifbpisU56Y"
 KEY = settings.KEY
 cipherE = AES.new(KEY, AES.MODE_EAX)
-cipherE.nonce = nonce.encode()
-nonceE = cipherE.nonce.decode()
+nonceE = cipherE.nonce
 
 #RSA keys
 n, e, p, q, d = settings.generateKeys()
@@ -43,9 +41,8 @@ if __name__ == '__main__':
     client.send(str(settings.rsaEncrypt(nonceE, nE, eE)).encode())
     #recieve AES key for decryption, encode to convert from int to bytes
     nonceD = settings.rsaDecrypt(client.recv(1024).decode(), n, p, q, d).encode()
-    client.send(nonceE.encode())
-    nonce1 = client.recv(1024)
-    cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonce1)
+    nonceD = nonceD.decode('unicode-escape').encode('ISO-8859-1')
+    cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonceD)
     print(f"{server_name} has joined the chat")
     print("Send [e] to exit the chat")
 

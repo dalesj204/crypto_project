@@ -33,7 +33,7 @@ def rsaEncrypt(m, n, e):
 def rsaDecrypt(y, n, p, q, d):
     cipher = y.split(" ")
     decr = ""
-    for i in range(len(cipher[:-1])):
+    for i in range(2,len(cipher[:-2])):
         c = cipher[i]
         A = pow(int(c), d%(p-1), p)
         B = pow(int(c), d%(q-1), q)

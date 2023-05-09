@@ -6,15 +6,13 @@ import socket
 import threading
 
 HOST = '127.0.0.1'
-PORT = 1200
+PORT = 12000
 
 
 #AES keys
-nonce = "JGLguyg65^YTGUJg57fii7gSFG"
 KEY = settings.KEY
 cipherE = AES.new(KEY, AES.MODE_EAX)
-cipherE.nonce = nonce.encode()
-nonceE = cipherE.nonce.decode()
+nonceE = cipherE.nonce
 
 cipherD2 = AES.new(KEY, AES.MODE_EAX, nonceE)
 
@@ -56,14 +54,10 @@ if __name__ == '__main__':
     eE = int(client.recv(1024).decode())
     client.send(str(e).encode())
     #recieve AES key, encode to convert from int to byte
-    nonceD = settings.rsaDecrypt(client.recv(1024).decode(), n, p, q, d).encode()
+    nonceD = settings.rsaDecrypt(client.recv(1024).decode('unicode-escape'), n, p, q, d).encode()
+    nonceD = nonceD.decode('unicode-escape').encode('ISO-8859-1')
     #send personal AES key, decode to convert from byte to int
     client.send(str(settings.rsaEncrypt(nonceE, nE, eE)).encode())
-    nonce1 = client.recv(1024)
-    client.send(nonceE.encode())
-    print(nonce1==nonceD)
-    print(nonce1)
-    print(nonceD)
     cipherD = AES.new(KEY, AES.MODE_EAX, nonce=nonceD)
         
     while 1:
@@ -79,4 +73,4 @@ if __name__ == '__main__':
 
         message = client.recv(1024)
         message = cipherD.decrypt(message)
-        print(f"{client_name}: {message.decode('latin-1')}")
+        print(f"{client_name}: {message.decode()}")
